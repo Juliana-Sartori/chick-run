@@ -39,6 +39,59 @@ void desenharRetangulo(float a, float b, float altura, float largura) {
     glEnd();
 }
 
+//-----> desenhando o olho do pintinho VIVO
+void desenharOlhoPintinhoVivo(){
+
+    glPushMatrix();
+         glPushAttrib(GL_CURRENT_BIT);
+            glColor3f(0.0f, 0.0f, 0.0f);
+            desenharQuadrado(-0.01f, 0.26f, 0.015f);
+        glPopAttrib();
+     glPopMatrix();
+}
+
+//-----> desenhando o olho do pintinho MORTO
+void desenharOlhoPintinhoMorto(){
+/*
+    glPushMatrix();
+         glPushAttrib(GL_CURRENT_BIT);
+            glColor3f(0.0f, 0.0f, 0.0f);
+            glTranslatef(0.25f, 0.25f, 0.0f);
+            glRotatef(90.0f, -0.01f, 0.26f, 1.0f);
+            desenharRetangulo(-0.01f, 0.26f, 0.005f, 0.026f);
+        glPopAttrib();
+     glPopMatrix();
+
+     glPushMatrix();
+         glPushAttrib(GL_CURRENT_BIT);
+            glColor3f(1.0f, 0.0f, 1.0f);
+            glTranslatef(0.0015f, 0.5f, 0.0f);
+            glRotatef(180.0f, -0.01f, 0.26f, 1.0f);
+            desenharRetangulo(-0.01f, 0.26f, 0.005f, 0.026f);
+        glPopAttrib();
+     glPopMatrix();*/
+
+     /*
+      glPushMatrix();
+         glPushAttrib(GL_CURRENT_BIT);
+            glColor3f(0.0f, 0.0f, 0.0f);
+
+            // Primeiro retângulo (diagonal superior esquerda para inferior direita)
+            desenharRetangulo(-0.01f, 0.26f, 0.015f, 0.015f);
+
+            glPopAttrib();
+     glPopMatrix();
+
+           glPushMatrix();
+                glPushAttrib(GL_CURRENT_BIT);
+                glColor3f(1.0f, 0.0f, 1.0f);
+            // Segundo retângulo (diagonal inferior esquerda para superior direita)
+                desenharRetangulo(-0.01f, 0.275f, -0.015f, 0.015f); // Note o ajuste em y para criar a diagonal
+        glPopAttrib();
+     glPopMatrix();
+     */
+}
+
 //-----> desenhando o pintinho
 void desenharPintinho(){
 
@@ -48,14 +101,15 @@ void desenharPintinho(){
         desenharQuadrado(-0.05f, 0.2f, 0.091f);
     glPopAttrib(); // Restaura o estado anterior da cor
 
-     //olho
+     //olho Vivo (if pintinho vivo (desenharOlhoPintinhoVivo)else{desenharOlhoPintinhoMorto})
+     desenharOlhoPintinhoVivo();
+    /* VOLTAR
      glPushMatrix();
-         glPushAttrib(GL_CURRENT_BIT);
-            glColor3f(0.0f, 0.0f, 0.0f);
-            desenharQuadrado(-0.01f, 0.26f, 0.015f);
-        glPopAttrib();
+        glRotatef(45.0f, 0.0f, 0.0f, 1.0f);
+        glTranslatef(0.02f, 0.1f, 0.0f);
+        desenharOlhoPintinhoMorto();
      glPopMatrix();
-
+*/
     //bico
     glPushMatrix();
         glPushAttrib(GL_CURRENT_BIT);
@@ -95,6 +149,8 @@ void telaInstrucoes(){
     desenhaTexto(-0.1f, 0.7f, "Chick Run");
 
         glPushMatrix();
+          glTranslatef(-0.05f, 0.2f, 0.0f);
+            glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
            desenharPintinho();
         glPopMatrix();
 
@@ -109,10 +165,38 @@ void telaInstrucoes(){
 
 }
 
+//-----> tela de game over
+void gameOver(){
+
+ glClearColor(0.2627f, 0.4863f, 0.4941f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    desenhaTexto(-0.1f, 0.7f, "Game Over");
+
+        glPushMatrix();
+           glTranslatef(0.23f, 0.2f, 0.0f);
+           glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+           desenharPintinho();
+        glPopMatrix();
+
+
+    desenhaTexto(-0.2f, -0.2f, "Score:");
+
+	glFlush();
+
+}
+
 //-----> janela de visualizacao
 void display(){
 
-   telaInstrucoes();
+     glPushMatrix();
+          telaInstrucoes();
+    glPopMatrix();
+
+    glPushMatrix();
+          gameOver();
+    glPopMatrix();
+
 }
 
 
