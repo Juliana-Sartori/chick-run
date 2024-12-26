@@ -85,10 +85,11 @@ void desenharPintinho(){
      glPopMatrix();
 }
 
-//-----> janela de visualizacao
-void display(){
 
-    glClearColor(0.2627f, 0.4863f, 0.4941f, 1.0f);
+//-----> tela de instruçoes
+void telaInstrucoes(){
+
+ glClearColor(0.2627f, 0.4863f, 0.4941f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     desenhaTexto(-0.1f, 0.7f, "Chick Run");
@@ -105,6 +106,13 @@ void display(){
     desenhaTexto(-0.65f, -0.7f, "Pressionar as teclas 's' ou 'S' para dar start no jogo");
 
 	glFlush();
+
+}
+
+//-----> janela de visualizacao
+void display(){
+
+   telaInstrucoes();
 }
 
 
