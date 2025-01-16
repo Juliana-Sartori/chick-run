@@ -1,5 +1,4 @@
 #ifdef __APPLE__
-#include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
 #endif
@@ -298,7 +297,7 @@ void telaInstrucoes(){
     desenhaTexto(-0.1f, 0.7f, "Chick Run");
 
         glPushMatrix();
-          glTranslatef(-0.05f, 0.2f, 0.0f);
+          glTranslatef(0.0f, 0.1f, 0.0f);
             glRotatef(0.0f, 0.0f, 0.0f, 1.0f);
            desenharPintinho();
         glPopMatrix();
@@ -359,10 +358,10 @@ void gameOver(){
 
  glClearColor(0.2627f, 0.4863f, 0.4941f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    desenhaTexto(-0.2f, 0.7f, "Game Over");
+    desenhaTexto(-0.15f, 0.7f, "Game Over");
 
         glPushMatrix();
-           glTranslatef(0.23f, 0.2f, 0.0f);
+           glTranslatef(0.17f, 0.2f, 0.0f);
            glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
            desenharPintinho();
         glPopMatrix();
