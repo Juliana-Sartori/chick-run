@@ -6,6 +6,17 @@
 
 #include <math.h>
 
+#include <cstdio> // Necessário para sprintf
+#include <iostream>
+
+#include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
+
+
+
+
+
 //Controle da transla  o
 GLfloat posicaoX=0.8, posicaoY=0.7;
 
@@ -17,6 +28,14 @@ GLboolean emPulo = GL_FALSE;       // Indica se o pintinho está no ar
 GLfloat alturaMaxima = 0.7f;       // Altura máxima do pulo (0,8)
 
 GLboolean gameOverFlag = GL_FALSE; // Indica o estado do jogo
+GLboolean canScore = GL_TRUE;
+GLboolean canChangeDay = GL_FALSE;
+
+int contadorPulos = 0;
+GLboolean dia = true;
+
+bool gameIniciado = false;
+
 
 //-----> desenhando texto na janela
 void desenhaTexto(float x, float y, const char* texto)
@@ -73,7 +92,7 @@ void desenharOlhoPintinhoVivo(){
 }
 
 //-----> desenhando o olho do pintinho MORTO
-void desenharOlhoPintinhoMorto(){
+void desenharOlhoPintinhoMortoANTIGO(){
 
     glPushMatrix();
          glPushAttrib(GL_CURRENT_BIT);
@@ -106,13 +125,36 @@ void desenharOlhoPintinhoMorto(){
 
            glPushMatrix();
                 glPushAttrib(GL_CURRENT_BIT);
-                glColor3f(1.0f, 0.0f, 1.0f);
+                glColor3f(0.0f, 0.0f, 0.0f);
             // Segundo retângulo (diagonal inferior esquerda para superior direita)
                 desenharRetangulo(-0.01f, 0.275f, -0.015f, 0.015f); // Note o ajuste em y para criar a diagonal
         glPopAttrib();
      glPopMatrix();
 
 }
+
+void desenharOlhoPintinhoMorto() {
+    // Primeira diagonal do "X" (de cima à esquerda para baixo à direita)
+    glPushMatrix();
+        glPushAttrib(GL_CURRENT_BIT);
+            glColor3f(0.0f, 0.0f, 0.0f); // Cor preta
+            glTranslatef(0.009f, 0.26f, 0.0f); // Ajusta posição do olho para o pintinho
+            glRotatef(45.0f, 0.0f, 0.0f, 1.0f); // Rotaciona para formar a diagonal
+            desenharRetangulo(-0.012f, 0.012f, 0.004f, 0.025f); // Desenha a linha diagonal
+        glPopAttrib();
+    glPopMatrix();
+
+    // Segunda diagonal do "X" (de cima à direita para baixo à esquerda)
+    glPushMatrix();
+        glPushAttrib(GL_CURRENT_BIT);
+            glColor3f(0.0f, 0.0f, 0.0f); // Cor preta
+            glTranslatef(-0.009f, 0.26f, 0.0f); // Ajusta posição do olho para o pintinho
+            glRotatef(-45.0f, 0.0f, 0.0f, 1.0f); // Rotaciona para formar a outra diagonal
+            desenharRetangulo(-0.012f, 0.012f, 0.004f, 0.025f); // Desenha outra linha diagonal
+        glPopAttrib();
+    glPopMatrix();
+}
+
 //-----> desenhando os cactos
 void desenharCactos(){
    //parte do meio
@@ -179,6 +221,15 @@ void desenharPintinho(){
         desenharQuadrado(-0.05f, 0.2f, 0.091f);
     glPopAttrib();
 
+    // desenhar o olho (vivo ou morto)
+    if (gameOverFlag) {
+        // Se o jogo terminou, desenha o olho morto
+        desenharOlhoPintinhoMorto();
+    } else {
+        // Caso contrário, desenha o olho vivo
+        desenharOlhoPintinhoVivo();
+    }
+    /*--------------------
      //olho Vivo (if pintinho vivo (desenharOlhoPintinhoVivo)else{desenharOlhoPintinhoMorto})
      desenharOlhoPintinhoVivo();
     /* VOLTAR
@@ -187,7 +238,7 @@ void desenharPintinho(){
         glTranslatef(0.02f, 0.1f, 0.0f);
         desenharOlhoPintinhoMorto();
      glPopMatrix();
-*/
+---------------------------------*/
     //bico
     glPushMatrix();
         glPushAttrib(GL_CURRENT_BIT);
@@ -248,16 +299,17 @@ void telaInstrucoes(){
 
         glPushMatrix();
           glTranslatef(-0.05f, 0.2f, 0.0f);
-            glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+            glRotatef(0.0f, 0.0f, 0.0f, 1.0f);
            desenharPintinho();
         glPopMatrix();
 
 
     desenhaTexto(-0.2f, -0.2f, "Instrucoes de jogo:");
-    desenhaTexto(-0.65f, -0.4f, "Pressionar a tecla de 'espaco' para pular os cactos");
-    desenhaTexto(-0.65f, -0.5f, "Pressionar a tecla 'esc' para sair do jogo");
-    desenhaTexto(-0.65f, -0.6f, "Pressionar as teclas de 'r' ou 'R'  para resetar o jogo");
-    desenhaTexto(-0.65f, -0.7f, "Pressionar as teclas 's' ou 'S' para dar start no jogo");
+    desenhaTexto(-0.57f, -0.4f, "Pressionar as teclas 's' ou 'S' para dar start no jogo");
+    desenhaTexto(-0.57f, -0.5f, "Pressionar as teclas de 'r' ou 'R'  para resetar o jogo");
+    desenhaTexto(-0.45f, -0.6f, "Pressionar a tecla 'esc' para sair do jogo");
+    desenhaTexto(-0.55f, -0.7f, "Pressionar a tecla de 'w' ou 'W' para pular os cactos");
+    desenhaTexto(-0.97f, -0.8f, "Caso queira mudar de dia para noite e vice e versa manualmente pressione a tecla de 'espaco'");
 
 	glFlush();
 
@@ -273,14 +325,32 @@ void verificarColisao() {
 
     // Define os limites do cacto
     GLfloat cactoMinX = posicaoCactos;
-    GLfloat cactoMaxX = cactoMinX + 0.2f; // Largura do cacto
+    GLfloat cactoMaxX = cactoMinX + 0.2f; // Largura do cacto       // MEXI AQUI
     GLfloat cactoMinY = -0.38f;
-    GLfloat cactoMaxY = cactoMinY + 0.4f; // Altura do cacto
+    GLfloat cactoMaxY = cactoMinY + 0.53f; // Altura do cacto       // MEXI AQUI
+
+    // Se o cacto resetou, libera para pontuar
+    if (posicaoCactos == 1.0f) {                   // MEXI AQUI
+        canScore = GL_TRUE;
+    }
 
     // Verifica sobreposição entre pintinho e cacto
     if (pintinhoMaxX > cactoMinX && pintinhoMinX < cactoMaxX &&
         pintinhoMaxY > cactoMinY && pintinhoMinY < cactoMaxY) {
         gameOverFlag = GL_TRUE; // Aciona o estado de "game over"
+    }
+
+    // Define uma "barreira" de checkpoint             // MEXI AQUI PRA BAIXO
+    GLfloat checkpointX = cactoMaxX + 0.001f;
+
+    // Verifica se o pintinho passou a barreira de checkpoint e atualiza se pode ou não contar ponto
+    if (pintinhoMinX > checkpointX && canScore) {
+        canScore = GL_FALSE;  // bloqueia para não contar mais que 1 ponto
+        contadorPulos++;      // Aciona a pontuação
+        velocidadeCactos = velocidadeCactos + 0.00001f;   // incrementa as velocidades
+        if (velocidadePulo < 0.002f) {
+            velocidadePulo = velocidadePulo + 0.00001;
+        }
     }
 }
 
@@ -289,7 +359,7 @@ void gameOver(){
 
  glClearColor(0.2627f, 0.4863f, 0.4941f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    desenhaTexto(-0.1f, 0.7f, "Game Over");
+    desenhaTexto(-0.2f, 0.7f, "Game Over");
 
         glPushMatrix();
            glTranslatef(0.23f, 0.2f, 0.0f);
@@ -298,46 +368,119 @@ void gameOver(){
         glPopMatrix();
 
 
-    desenhaTexto(-0.2f, -0.2f, "Score:");
+    std::string mensagemPontuacao = "Quantidade de cactos pulados: ";
+    mensagemPontuacao += std::to_string(contadorPulos);
+
+    desenhaTexto(-0.4f, -0.2f, mensagemPontuacao.c_str());
 
 	glFlush();
 
 }
 
+#define NUM_ESTRELAS 100
+
+static void desenharEstrelasAleatorias() {
+
+    glColor3f(1.0f, 1.0f, 1.0f); //branca
+
+    glBegin(GL_POINTS);
+
+    for (int i = 0; i < NUM_ESTRELAS; i++) {
+         GLfloat x = ((rand() % 2000) - 1000) / 1000.0f; // Faixa de -1.0 a 1.0
+        GLfloat y = ((rand() % 1000)) / 1000.0f;
+        glVertex2f(x, y);
+    }
+    glEnd();
+}
+
 //-----> tela de cenario
 void desenhandoCenario() {
+    if (contadorPulos%10 == 1) {
+        canChangeDay = GL_TRUE;
+    }
+
+    if (contadorPulos%10 == 0 && canChangeDay) {
+        canChangeDay = GL_FALSE;
+        dia = !dia;     // inverte o boleano (se false vira true e vice versa)
+    }
 
      if (gameOverFlag) {
         gameOver();
         return;
     }
 
-    // Gramado
-    glPushMatrix();
-        glColor3f(0.4353f, 0.7804f, 0.4392f);
-        desenharRetangulo(-40.0f, -0.999f, 1.0f, 100.0f);
-    glPopMatrix();
+    if(dia){
+        // Gramado
+        glPushMatrix();
+            glColor3f(0.4353f, 0.7804f, 0.4392f);
+            desenharRetangulo(-40.0f, -0.999f, 1.0f, 100.0f);
+        glPopMatrix();
 
-    // Pintinho (posição dinâmica no eixo Y)
-    glPushMatrix();
-        glTranslatef(-0.8, posicaoPintinhoY, 0);
-        desenharPintinho();
-    glPopMatrix();
+        // Pintinho (posição dinâmica no eixo Y)
+        glPushMatrix();
+            glTranslatef(-0.8, posicaoPintinhoY, 0);
+            desenharPintinho();
+        glPopMatrix();
 
-    // Cactos (posição dinâmica no eixo X)
-    glPushMatrix();
-        glTranslatef(posicaoCactos, -0.38, 0);
-      //----VOLTA  desenharCactos();
-        desenharRetangulo(0.0f, 0.0f, 0.4f, 0.2f);
-    glPopMatrix();
+        // Cactos (posição dinâmica no eixo X)
+        //glPushMatrix();
+        //    glTranslatef(posicaoCactos, -0.38, 0);
+        //    desenharRetangulo(0.0f, 0.0f, 0.4f, 0.2f);  // REMOVER TUDO ISSO AQUI
+       // glPopMatrix();
 
-    // Sol
-    glPushMatrix();
-        glTranslatef(posicaoX, posicaoY, 0);
-        glScalef(0.1, 0.1 , 0.1);
-        glColor3f(1.0f, 0.5686f, 0.3020f);
-        desenharCirculo(20);
-    glPopMatrix();
+        // Cactos (posição dinâmica no eixo X)
+        glPushMatrix();
+            glTranslatef(posicaoCactos+0.45, -0.38, -0.5);    // MEXI AQUI
+            desenharCactos();
+        glPopMatrix();
+
+        // Sol
+        glPushMatrix();
+            glTranslatef(posicaoX, posicaoY, 0);
+            glScalef(0.1, 0.1 , 0.1);
+            glColor3f(1.0f, 0.5686f, 0.3020f);
+            desenharCirculo(20);
+        glPopMatrix();
+    }else{
+       glPointSize(1.7f);
+        desenharEstrelasAleatorias();
+
+        // Gramado
+        glPushMatrix();
+            glColor3f(0.7451f, 0.5725f, 0.4627f);
+            desenharRetangulo(-40.0f, -0.999f, 1.0f, 100.0f);
+        glPopMatrix();
+
+        // Pintinho (posição dinâmica no eixo Y)
+        glPushMatrix();
+            glTranslatef(-0.8, posicaoPintinhoY, 0);
+            desenharPintinho();
+        glPopMatrix();
+
+        // Cactos (posição dinâmica no eixo X)
+       // glPushMatrix();
+        //    glTranslatef(posicaoCactos, -0.38, 0);      // REMOVER TUDO ISSO AQUI
+          //----VOLTA  desenharCactos();
+         //   desenharRetangulo(0.0f, 0.0f, 0.4f, 0.2f);
+        //glPopMatrix();
+
+        // Cactos (posição dinâmica no eixo X)
+        glPushMatrix();
+            glTranslatef(posicaoCactos+0.45, -0.38, -0.5);    // MEXI AQUI
+            desenharCactos();
+        glPopMatrix();
+    }
+
+     // Incrementa o contador de pulos ao iniciar um pulo
+    //if (jumpedTheCactus) {
+    //    contadorPulos++;
+    //    jumpedTheCactus = GL_FALSE;
+   // }
+
+    // Mostra o número de cactos pulados
+    char texto[50];
+    sprintf(texto, "Cactos pulados: %d", contadorPulos);
+    desenhaTexto(-0.9f, 0.8f, texto);
 
     glFlush();
 }
@@ -386,28 +529,56 @@ void verificarColisaoNAO() {
     }
 }
 
-
 //-----> janela de visualizacao
 void display(){
 
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    if(dia){
+          glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    }else{
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //preto
+
     glClear(GL_COLOR_BUFFER_BIT);
 
-/*
-     glPushMatrix();
+
+    }
+
+    if(gameIniciado){
+        glPushMatrix();
+            desenhandoCenario();
+        glPopMatrix();
+    }else{
+        glPushMatrix();
+          telaInstrucoes();
+        glPopMatrix();
+    }
+
+/*-------------------------------------  AQUI FICA
+-------------------------------------    */
+    //gameOver();
+
+    /* glPushMatrix();
           telaInstrucoes();
     glPopMatrix();
 
     glPushMatrix();
           gameOver();
     glPopMatrix();
-*/
- //   glPushMatrix();
-         desenhandoCenario();
-  //  glPopMatrix();
 
+*/
+glutSwapBuffers();
 }
 
+void resetaConfigs() {
+    posicaoCactos = 1.0f;
+    posicaoPintinhoY = -0.19f;
+    gameOverFlag = GL_FALSE;
+    gameIniciado = false;
+    contadorPulos = 0;
+    velocidadeCactos = 0.0001f;
+    velocidadePulo = 0.0002f;
+    GLboolean canChangeDay = GL_FALSE;
+}
 
 //-----> eventos do teclado
 static void key(unsigned char key, int x, int y) {
@@ -419,10 +590,21 @@ static void key(unsigned char key, int x, int y) {
         }
     }else if (key == 'r' || key == 'R') {
         // Reinicia o jogo
-        posicaoCactos = 1.0f;
-        posicaoPintinhoY = -0.19f;
-        gameOverFlag = GL_FALSE;
+        resetaConfigs();  // MEXI AQUI
+        //posicaoCactos = 1.0f;
+        //posicaoPintinhoY = -0.19f;
+        //gameOverFlag = GL_FALSE;
+        // gameIniciado = false;
+         //contadorPulos = 0;
     }
+    else if (key == 's' || key == 'S'){
+           gameIniciado = true;
+    }
+    else if (key == 32 ) { // Tecla espaço
+        dia = !dia;
+        glutPostRedisplay(); // Atualiza a tela
+    }
+
 }
 
 
@@ -430,7 +612,7 @@ int main(int argc, char *argv[]){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(850, 600);
     glutInitWindowPosition(350, 100);
 
     glutCreateWindow("Chick Run");
@@ -452,7 +634,4 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-
-
-// Programa Principal
 

@@ -877,10 +877,15 @@
 1526093416 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\math.h
 	<crtdefs.h>
 
-1736866322 source:c:\users\juliana\desktop\facul-8\cg\tp-2d\chick-run\chick-run\main.cpp
+1737033777 source:c:\users\juliana\desktop\facul-8\cg\tp-2d\chick-run\chick-run\main.cpp
 	<GLUT/glut.h>
 	<GL/glut.h>
 	<math.h>
+	<cstdio>
+	<iostream>
+	<stdlib.h>
+	<time.h>
+	<stdio.h>
 
 1526093414 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\stdio.h
 	<crtdefs.h>
@@ -901,4 +906,20 @@
 	<stdio.h>
 
 1526093414 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\_mingw_print_pop.h
+
+1526093414 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\time.h
+	<crtdefs.h>
+	<_timeval.h>
+	<sys/timeb.h>
+	<pthread_time.h>
+
+1526093414 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\sys\timeb.h
+	<crtdefs.h>
+	<sec_api/sys/timeb_s.h>
+
+1526093414 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\sec_api\sys\timeb_s.h
+	<sys/timeb.h>
+
+1526093420 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\pthread_time.h
+	<sys/timeb.h>
 
