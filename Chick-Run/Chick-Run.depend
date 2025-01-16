@@ -877,8 +877,7 @@
 1526093416 c:\users\juliana\desktop\facul-8\cg\ambientedeprog\codeblocks\mingw\x86_64-w64-mingw32\include\math.h
 	<crtdefs.h>
 
-1737034360 source:c:\users\juliana\desktop\facul-8\cg\tp-2d\chick-run\chick-run\main.cpp
-	<GLUT/glut.h>
+1737038050 source:c:\users\juliana\desktop\facul-8\cg\tp-2d\chick-run\chick-run\main.cpp
 	<GL/glut.h>
 	<math.h>
 	<cstdio>
